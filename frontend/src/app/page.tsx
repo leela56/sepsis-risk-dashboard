@@ -38,9 +38,10 @@ export default function Dashboard() {
       setLoading(true);
       setError("");
       
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const [patientsRes, statsRes] = await Promise.all([
-        fetch("http://localhost:8000/api/patients"),
-        fetch("http://localhost:8000/api/stats")
+        fetch(`${API_URL}/api/patients`),
+        fetch(`${API_URL}/api/stats`)
       ]);
       
       if (!patientsRes.ok || !statsRes.ok) {
