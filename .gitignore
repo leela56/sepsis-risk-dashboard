@@ -1,0 +1,16 @@
+# MIMIC data files - not to be shared publicly
+data/
+*.csv
+*.gz
+*.tar
+
+# Python
+__pycache__/
+*.py[cod]
+*.env
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
