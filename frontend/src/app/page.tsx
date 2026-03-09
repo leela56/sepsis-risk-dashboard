@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { AlertTriangle, Activity, CheckCircle2, AlertCircle, RefreshCw, Database, Server, BrainCircuit, ActivitySquare, ChevronDown, ChevronUp, Search, Filter } from "lucide-react";
+import { AlertTriangle, Activity, CheckCircle2, AlertCircle, RefreshCw, Database, Server, BrainCircuit, ActivitySquare, ChevronDown, ChevronUp, Search, Filter, Github } from "lucide-react";
 
 interface SepsisAlert {
   subject_id: string;
@@ -109,14 +109,25 @@ export default function Dashboard() {
             </div>
             <p className="text-neutral-400">Agentic AI real-time risk stratification</p>
           </div>
-          <button 
-            onClick={fetchData}
-            disabled={loading}
-            className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-sm text-neutral-300 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
-            Refresh Data
-          </button>
+          <div className="flex items-center gap-3">
+            <a 
+              href="https://github.com/leela56/sepsis-risk-dashboard"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-lg text-sm text-neutral-300 transition-colors"
+            >
+              <Github className="h-4 w-4" />
+              Source Code
+            </a>
+            <button 
+              onClick={fetchData}
+              disabled={loading}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 rounded-lg text-sm text-blue-400 transition-colors disabled:opacity-50"
+            >
+              <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+              Refresh Data
+            </button>
+          </div>
         </header>
 
         {error && (
