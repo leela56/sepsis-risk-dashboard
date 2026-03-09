@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
-import { AlertTriangle, Activity, CheckCircle2, AlertCircle, RefreshCw, Database, Server, BrainCircuit, ActivitySquare, ChevronDown, ChevronUp } from "lucide-react";
+import { AlertTriangle, Activity, CheckCircle2, AlertCircle, RefreshCw, Database, Server, BrainCircuit, ActivitySquare, ChevronDown, ChevronUp, Search, Filter } from "lucide-react";
 
 interface SepsisAlert {
   subject_id: string;
@@ -32,6 +32,8 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showArchitecture, setShowArchitecture] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterRisk, setFilterRisk] = useState<"ALL" | "HIGH" | "MEDIUM" | "LOW">("ALL");
 
   const fetchData = async () => {
     try {
@@ -67,6 +69,12 @@ export default function Dashboard() {
     const interval = setInterval(fetchData, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  const filteredPatients = patients.filter(p => {
+    const matchesSearch = p.subject_id.includes(searchQuery);
+    const matchesRisk = filterRisk === "ALL" || p.risk_level === filterRisk;
+    return matchesSearch && matchesRisk;
+  });
 
   const getRiskColor = (risk: string) => {
     switch (risk) {
@@ -137,36 +145,56 @@ export default function Dashboard() {
                 {/* Connecting Line */}
                 <div className="hidden md:block absolute top-8 left-[10%] right-[10%] h-0.5 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-green-500/20 z-0"></div>
                 
-                <div className="relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800/50 shadow-xl">
+                <div className="group cursor-help relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800/50 shadow-xl hover:border-blue-500/50 transition-colors">
                   <div className="h-12 w-12 rounded-full bg-blue-500/10 border border-blue-500/30 flex items-center justify-center">
                     <ActivitySquare className="h-6 w-6 text-blue-400" />
                   </div>
                   <h3 className="font-bold text-neutral-200">1. Data Stream</h3>
                   <p className="text-xs text-neutral-400">MIMIC-IV vital signs and labs are streamed in real-time into <span className="text-blue-300">Confluent Kafka</span>.</p>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute top-full mt-3 w-64 p-3 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-left">
+                    <p className="text-xs text-neutral-300"><strong className="text-white">Why Kafka?</strong> High-throughput event streaming mimics an actual hospital bedside HL7 feed where millisecond delays matter.</p>
+                  </div>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800/50 shadow-xl">
+                <div className="group cursor-help relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-neutral-800/50 shadow-xl hover:border-indigo-500/50 transition-colors">
                   <div className="h-12 w-12 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center">
                     <Server className="h-6 w-6 text-indigo-400" />
                   </div>
                   <h3 className="font-bold text-neutral-200">2. Feature Engine</h3>
                   <p className="text-xs text-neutral-400">Python script computes rolling hourly averages, trends, and proxies like <span className="text-indigo-300">SOFA score</span>.</p>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute top-full mt-3 w-64 p-3 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-left">
+                    <p className="text-xs text-neutral-300"><strong className="text-white">Why Pandas?</strong> Raw signals are noisy. We compute 1-hour and 3-hour rolling aggregations so the AI can analyze medical state trends, not just point-in-time dots.</p>
+                  </div>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                <div className="group cursor-help relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-purple-500/30 shadow-[0_0_15px_rgba(168,85,247,0.1)] hover:border-purple-400/60 transition-colors">
                   <div className="h-12 w-12 rounded-full bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
                     <BrainCircuit className="h-6 w-6 text-purple-400" />
                   </div>
                   <h3 className="font-bold text-white">3. Claude AI Agent</h3>
                   <p className="text-xs text-neutral-400">Anthropic Claude assesses rolling data with a structured prompt, returning JSON <span className="text-purple-300">risk levels & clinical reasoning</span>.</p>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute top-full mt-3 w-64 p-3 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-left">
+                    <p className="text-xs text-neutral-300"><strong className="text-white">Why Claude 3.5 Sonnet?</strong> We use Sonnet for its superior adherence to structured JSON output and deep clinical reasoning capabilities to reduce false-positive alarm fatigue.</p>
+                  </div>
                 </div>
 
-                <div className="relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-green-500/20 shadow-xl">
+                <div className="group cursor-help relative z-10 flex flex-col items-center text-center space-y-3 bg-neutral-950 p-4 rounded-xl border border-green-500/20 shadow-xl hover:border-green-500/50 transition-colors">
                   <div className="h-12 w-12 rounded-full bg-green-500/10 border border-green-500/30 flex items-center justify-center">
                     <Database className="h-6 w-6 text-green-400" />
                   </div>
                   <h3 className="font-bold text-neutral-200">4. Live Delivery</h3>
                   <p className="text-xs text-neutral-400">Assessments hit <span className="text-green-300">Supabase</span> (PostgreSQL), served by <span className="text-emerald-300">FastAPI</span> to this Next.js dashboard.</p>
+                  
+                  {/* Tooltip */}
+                  <div className="absolute top-full mt-3 w-64 p-3 bg-neutral-800 border border-neutral-700 rounded-lg shadow-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 text-left md:-left-1/2">
+                    <p className="text-xs text-neutral-300"><strong className="text-white">Why Supabase & FastAPI?</strong> We store the structured assessments persistently in Postgres so the high-performance async FastAPI backend can serve instant real-time data to doctors.</p>
+                  </div>
                 </div>
               </div>
             </div>
@@ -198,14 +226,49 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Patient Grid */}
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-white flex items-center gap-2">
-            Live Patient Assessments
-            <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400 border border-neutral-700">
-              {patients.length} active
-            </span>
-          </h2>
+        {/* Patient Grid & Filters */}
+        <div className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              Live Patient Assessments
+              <span className="text-xs font-normal px-2 py-0.5 rounded-full bg-neutral-800 text-neutral-400 border border-neutral-700">
+                {filteredPatients.length} active
+              </span>
+            </h2>
+
+            {/* Filter Controls */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500" />
+                <input 
+                  type="text" 
+                  placeholder="Search Patient ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-2 bg-neutral-900 border border-neutral-800 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500/50 w-full sm:w-48 placeholder:text-neutral-600 transition-colors"
+                />
+              </div>
+              
+              <div className="flex items-center bg-neutral-900 border border-neutral-800 rounded-lg p-1">
+                {(["ALL", "HIGH", "MEDIUM", "LOW"] as const).map(risk => (
+                  <button
+                    key={risk}
+                    onClick={() => setFilterRisk(risk)}
+                    className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                      filterRisk === risk 
+                        ? risk === 'HIGH' ? 'bg-red-500/20 text-red-400'
+                        : risk === 'MEDIUM' ? 'bg-yellow-500/20 text-yellow-400'
+                        : risk === 'LOW' ? 'bg-green-500/20 text-green-400'
+                        : 'bg-neutral-800 text-white'
+                        : 'text-neutral-500 hover:text-neutral-300'
+                    }`}
+                  >
+                    {risk}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {loading && patients.length === 0 ? (
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6 animate-pulse">
@@ -213,9 +276,15 @@ export default function Dashboard() {
                 <div key={i} className="h-64 bg-neutral-900 rounded-2xl border border-neutral-800"></div>
               ))}
             </div>
+          ) : filteredPatients.length === 0 ? (
+            <div className="text-center py-12 border border-neutral-800 border-dashed rounded-2xl bg-neutral-900/50">
+              <Filter className="h-8 w-8 text-neutral-600 mx-auto mb-3" />
+              <p className="text-neutral-400 font-medium">No patients found matching your filters.</p>
+              <button onClick={() => {setSearchQuery(""); setFilterRisk("ALL");}} className="mt-2 text-sm text-blue-400 hover:text-blue-300">Clear filters</button>
+            </div>
           ) : (
             <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
-              {patients.map((patient) => (
+              {filteredPatients.map((patient) => (
                 <div 
                   key={patient.subject_id} 
                   className={`bg-neutral-900 border rounded-2xl p-5 flex flex-col hover:border-neutral-600 transition-colors ${
